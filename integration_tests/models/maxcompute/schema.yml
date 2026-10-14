@@ -41,3 +41,10 @@ models:
       - dbt_utils.equality:
           compare_model: ref('mc_precision_expected')
           precision: 2
+
+  # database 实参可省略：省略时也要枚举到同一批关系，且与显式传 target.database 结果一致
+  - name: mc_relations_by_prefix_default
+    data_tests:
+      - dbt_utils.equality:
+          compare_model: ref('mc_expected_relations_by_prefix_default')
+          compare_columns: ['case_id', 'actual']
