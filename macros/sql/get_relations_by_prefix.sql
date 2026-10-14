@@ -31,7 +31,7 @@
 
 {% endmacro %}
 
-{% macro maxcompute__get_relations_by_prefix(schema, prefix, exclude='', database=target.databas) %}
+{% macro maxcompute__get_relations_by_prefix(schema, prefix, exclude='', database=target.database) %}
     {% set relations =  adapter.get_relations_by_prefix(schema, prefix, exclude, database) %}
     {{ return(relations) }}
 {% endmacro %}
