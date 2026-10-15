@@ -9,8 +9,9 @@
   exclude 挡掉 dbt create-or-replace 留下的 <name>__dbt_tmp / <name>__dbt_backup：
   一次被中断的跑动就会在同 schema 残留它们，不挡掉的话常数期望会被这些内部对象污染。
   depends_on 只为保证两张探针表先建出来（枚举结果要确定），不是数据依赖。
+  这行必须紧贴下面的 SQL：它上面若被 Jinja 的 `-%}` 吃掉换行，第一条 select 会被并进注释行里，
+  服务端报 ODPS-0130161 Parse exception - invalid token 'union'（真跑过一次才看得见，compile 不报）。
 -#}
--- depends_on: {{ ref('mc_prefixprobe_a') }}, {{ ref('mc_prefixprobe_b') }}
 {%- set probe_prefix = 'mc_prefixprobe_' -%}
 {%- set dbt_internals = '%__dbt_%' -%}
 {%- set implicit = dbt_utils.maxcompute__get_relations_by_prefix(target.schema, probe_prefix, dbt_internals) -%}
@@ -21,6 +22,8 @@
 {%- set entry_names = entry | map(attribute='identifier') | sort | join(',') -%}
 {%- set implicit_first_database = (implicit | first).database if (implicit | length) > 0 else '' -%}
 {%- set database_ok = (implicit_first_database ~ '') == (target.database ~ '') -%}
+
+-- depends_on: {{ ref('mc_prefixprobe_a') }}, {{ ref('mc_prefixprobe_b') }}
 
 select 'implicit_names' as case_id, cast('{{ implicit_names }}' as string) as actual
 union all
